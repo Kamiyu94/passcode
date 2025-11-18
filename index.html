@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TEAM TACTICS v3.0</title>
+    <title>TEAM TACTICS v3.1</title>
     <style>
         :root {
             --bg-color: #000000;
@@ -17,7 +17,7 @@
             
             --common: #00ff41;      /* Green */
             --danger: #ff0000;      /* Explosion Red */
-            --panel-bg: #111111;
+            --warning: #ff4500;     /* Reset Orange */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -30,85 +30,89 @@
             min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* 防止捲動，改用內部捲動 */
+            overflow: hidden;
         }
 
         .hidden { display: none !important; }
 
-        /* --- 1. 設定畫面 (Setup) --- */
+        /* --- 1. 設定畫面 --- */
         #screen-setup {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto;
         }
-        .setup-title { font-size: 1.2rem; color: #888; margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; }
-        .main-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 40px; letter-spacing: 5px; text-align: center; border: 4px solid #fff; padding: 20px; }
+        .main-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 30px; letter-spacing: 5px; text-align: center; border: 4px solid #fff; padding: 20px; }
+        .setup-title { font-size: 1.2rem; color: #888; margin-bottom: 15px; letter-spacing: 2px; }
         
-        .count-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px; width: 100%; max-width: 350px; }
+        .count-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 40px; width: 100%; max-width: 350px; }
         .count-btn {
-            padding: 15px; background: #222; border: 2px solid #444; color: #888; font-size: 1.2rem; font-weight: bold; border-radius: 8px; cursor: pointer;
+            padding: 20px; background: #222; border: 2px solid #444; color: #888; font-size: 1.2rem; font-weight: bold; border-radius: 12px;
         }
         .count-btn.selected { background: #333; border-color: var(--common); color: var(--common); box-shadow: 0 0 15px rgba(0,255,65,0.2); }
 
-        .role-list { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 350px; }
+        .role-list { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 350px; }
         .role-btn {
-            padding: 18px; background: #111; border: 2px solid #333; color: #fff; font-size: 1.2rem; font-weight: bold; border-radius: 10px; text-align: left; display: flex; align-items: center; transition: transform 0.1s;
+            padding: 20px; background: #111; border: 2px solid #333; color: #fff; font-size: 1.3rem; font-weight: bold; border-radius: 12px; text-align: left; display: flex; align-items: center;
         }
-        .role-btn:active { transform: scale(0.98); }
-        .role-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 15px; }
+        .role-dot { width: 15px; height: 15px; border-radius: 50%; margin-right: 15px; }
 
-        /* --- 2. 遊戲介面 (Game) --- */
+        /* --- 2. 遊戲介面 --- */
         #screen-game {
             flex: 1; display: flex; flex-direction: column; align-items: center; padding: 15px; 
-            padding-bottom: 100px; /* 預留底部空間 */
+            padding-top: 80px; /* 留給上方重置按鈕空間 */
+            padding-bottom: 100px; /* 留給下方控制列空間 */
             overflow-y: auto;
+            position: relative;
         }
 
-        /* 頂部資訊 */
-        .top-bar {
-            width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;
+        /* 頂部重置與資訊區 */
+        .header-zone {
+            position: fixed; top: 0; left: 0; width: 100%; height: 80px; background: #000; z-index: 40;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; border-bottom: 1px solid #333;
         }
-        .level-badge { background: #222; padding: 5px 10px; border-radius: 4px; font-size: 0.9rem; font-weight: bold; }
-        .turn-info { font-weight: bold; font-size: 1rem; }
+        .level-info { font-size: 1.1rem; font-weight: bold; color: #fff; }
+        
+        /* 重置按鈕 (鮮豔、大、防誤觸) */
+        .reset-btn {
+            background: var(--warning); color: #fff; border: none; 
+            padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1rem;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.4);
+        }
 
-        /* 主控模式 (Active) */
+        /* 主控模式 */
         .active-zone { width: 100%; max-width: 400px; text-align: center; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
 
         .target-card {
             background: rgba(255,255,255,0.08); border: 1px solid #444; border-radius: 16px; padding: 20px; margin-bottom: 20px;
         }
         .target-icon { font-size: 5rem; display: block; margin-bottom: 5px; animation: float 3s infinite; }
         .target-name { font-size: 2rem; font-weight: 900; color: #fff; line-height: 1.2; }
-        .target-en { font-size: 1.2rem; color: var(--common); font-weight: bold; letter-spacing: 1px; margin-top: 5px;}
+        .target-en { font-size: 1.2rem; color: var(--common); font-weight: bold; letter-spacing: 1px; margin-top: 5px; }
         @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
 
         .hint-box {
-            background: rgba(0,0,0,0.5); border: 1px dashed #666; padding: 10px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 1rem; color: #ccc; display: inline-block;
+            background: rgba(255,255,255,0.1); border: 1px dashed #888; padding: 12px; border-radius: 8px;
+            margin-bottom: 20px; font-size: 1.1rem; color: #fff; display: block;
         }
 
-        .input-wrapper { width: 100%; position: relative; margin-bottom: 15px; }
-        .lives-display { margin-bottom: 5px; font-size: 1.2rem; letter-spacing: 5px; min-height: 24px; }
+        .input-wrapper { width: 100%; margin-bottom: 15px; }
+        .lives-display { margin-bottom: 5px; font-size: 1.5rem; letter-spacing: 5px; min-height: 30px; }
         
         .game-input {
             width: 100%; background: #000; border: 3px solid #555; color: #fff;
-            font-size: 2.5rem; padding: 10px; text-align: center; border-radius: 12px;
-            outline: none; letter-spacing: 3px; text-transform: uppercase; font-family: inherit;
+            font-size: 2.5rem; padding: 15px; text-align: center; border-radius: 12px;
+            outline: none; letter-spacing: 3px; text-transform: uppercase;
         }
-        .game-input:focus { border-color: #fff; }
-
+        
         .unlock-btn {
-            width: 100%; padding: 15px; font-size: 1.5rem; font-weight: 900;
-            border: none; border-radius: 12px; cursor: pointer;
-            background: var(--common); color: #000; box-shadow: 0 5px 20px rgba(0,255,65,0.3);
+            width: 100%; padding: 18px; font-size: 1.5rem; font-weight: 900;
+            border: none; border-radius: 12px; cursor: pointer; background: #fff; color: #000;
         }
-        .unlock-btn:active { transform: scale(0.98); filter: brightness(0.9); }
 
-        /* 待機模式 (Passive) */
-        .passive-zone { width: 100%; max-width: 400px; text-align: center; margin-top: 40px; opacity: 0.7; }
+        /* 待機模式 */
+        .passive-zone { width: 100%; max-width: 400px; text-align: center; margin-top: 60px; opacity: 0.8; }
         .wait-icon { font-size: 4rem; margin-bottom: 20px; display: block; filter: grayscale(100%); }
-        .wait-text { font-size: 1.2rem; color: #888; margin-bottom: 10px; }
-        .wait-target { font-size: 1.5rem; font-weight: bold; }
+        .wait-text { font-size: 1.5rem; color: #888; margin-bottom: 10px; }
+        .wait-target { font-size: 1.2rem; font-weight: bold; color: #fff; }
 
         /* 底部控制列 */
         .bottom-bar {
@@ -119,7 +123,7 @@
         
         .book-btn {
             flex: 2; height: 60px; border-radius: 12px; margin-right: 10px;
-            background: #000; border: 2px solid #444; color: #888; font-size: 1.1rem; font-weight: bold;
+            background: #000; border: 2px solid #444; color: #888; font-size: 1.2rem; font-weight: bold;
             display: flex; align-items: center; justify-content: center;
         }
         .book-btn.highlight {
@@ -132,12 +136,6 @@
             flex: 1; height: 60px; border-radius: 12px;
             background: #222; border: 2px solid #555; color: #fff; font-size: 1rem; font-weight: bold;
         }
-        
-        /* 小重置按鈕 */
-        .reset-mini {
-            position: absolute; top: -40px; right: 15px;
-            background: #333; color: #888; border: 1px solid #555; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem;
-        }
 
         /* --- 3. 視窗 (Modal) --- */
         #modal-overlay {
@@ -145,15 +143,15 @@
         }
         .modal-header { padding: 15px; background: #222; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; }
         .tabs { display: flex; background: #000; padding: 10px; gap: 5px; }
-        .tab-btn { flex: 1; padding: 10px 0; background: #111; color: #666; border: 1px solid #333; border-radius: 6px; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 15px 0; background: #111; color: #666; border: 1px solid #333; border-radius: 8px; font-weight: bold; font-size: 1.1rem; }
         .tab-btn.active { background: #222; color: var(--common); border-color: var(--common); }
-        #code-list { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; }
-        .code-item { background: #1a1a1a; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #333; }
-        .item-code { color: var(--common); font-size: 1.4rem; font-weight: 900; margin: 5px 0; letter-spacing: 1px; }
-        .item-en { color: #fff; font-size: 0.8rem; font-weight: bold; }
-        .item-cn { color: #888; font-size: 0.8rem; }
+        #code-list { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; padding-bottom: 50px; }
+        .code-item { background: #1a1a1a; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; }
+        .item-code { color: var(--common); font-size: 1.5rem; font-weight: 900; margin: 5px 0; letter-spacing: 1px; }
+        .item-en { color: #fff; font-size: 0.9rem; font-weight: bold; }
+        .item-cn { color: #888; font-size: 0.9rem; }
 
-        /* --- 4. 狀態畫面 (成功/失敗) --- */
+        /* --- 4. 狀態畫面 --- */
         #screen-success, #screen-fail {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 95;
             display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;
@@ -161,12 +159,11 @@
         #screen-success { background: rgba(0,40,0,0.98); }
         #screen-fail { background: rgba(40,0,0,0.98); }
         
-        .status-icon { font-size: 6rem; margin-bottom: 20px; display: block; }
-        .status-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 10px; letter-spacing: 2px; }
-        .status-msg { font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-bottom: 40px; }
-        
+        .status-icon { font-size: 7rem; margin-bottom: 20px; display: block; }
+        .status-title { font-size: 3rem; font-weight: 900; margin-bottom: 10px; letter-spacing: 2px; }
+        .status-msg { font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-bottom: 40px; line-height: 1.5; }
         .action-btn {
-            padding: 15px 40px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.2);
+            padding: 20px 50px; font-size: 1.5rem; font-weight: bold; border-radius: 50px; border: none; cursor: pointer; box-shadow: 0 0 30px rgba(255,255,255,0.2);
         }
 
     </style>
@@ -185,15 +182,14 @@
 
         <div id="role-area" class="hidden" style="width:100%; display:flex; flex-direction:column; align-items:center;">
             <div class="setup-title">選擇你的身分</div>
-            <div id="role-list" class="role-list">
-                </div>
+            <div id="role-list" class="role-list"></div>
         </div>
     </div>
 
     <div id="screen-game" class="hidden">
-        <div class="top-bar">
-            <div class="level-badge" id="level-display">LEVEL 1</div>
-            <div class="turn-info" id="turn-display">TURN: A</div>
+        <div class="header-zone">
+            <div class="level-info" id="header-info">LEVEL 1 | TURN: A</div>
+            <button class="reset-btn" onclick="confirmReset()">↻ 重置任務</button>
         </div>
 
         <div id="active-view" class="active-zone hidden">
@@ -204,7 +200,7 @@
             </div>
 
             <div class="hint-box">
-                📡 請求支援：向 <span id="helper-name" style="font-weight:bold; color:#fff;">AGENT ?</span> 索取代碼
+                📡 向 <span id="helper-name" style="font-weight:bold; font-size:1.2rem;">AGENT ?</span> 索取
             </div>
 
             <div class="input-wrapper">
@@ -217,12 +213,11 @@
         <div id="passive-view" class="passive-zone hidden">
             <div class="wait-icon">🛡️</div>
             <div class="wait-text">SYSTEM STANDBY</div>
-            <div class="wait-target">等待隊友行動...</div>
-            <div style="margin-top:20px; color:#555;">目前回合：<span id="passive-turn-name">AGENT ?</span></div>
+            <div class="wait-target">正在等待隊友解鎖...</div>
+            <div style="margin-top:20px; color:#fff; font-weight:bold; font-size:1.2rem;">目前回合：<span id="passive-turn-name">AGENT ?</span></div>
         </div>
         
         <div class="bottom-bar">
-            <button class="reset-mini" onclick="confirmReset()">↻ 重置任務</button>
             <button id="btn-book" class="book-btn" onclick="openCodebook()">📖 密碼本</button>
             <button class="next-btn" onclick="manualNextLevel()">下一關 ⏭</button>
         </div>
@@ -231,21 +226,21 @@
     <div id="screen-success" class="hidden">
         <div class="status-icon">✅</div>
         <div class="status-title" style="color:var(--common);">SUCCESS</div>
-        <div class="status-msg">任務完成！請全體按下「下一關」</div>
+        <div class="status-msg">任務完成！<br>請全體特務按下「下一關」</div>
         <button class="action-btn" style="background:var(--common); color:#000;" onclick="manualNextLevel()">下一關 ⏭</button>
     </div>
 
     <div id="screen-fail" class="hidden">
         <div class="status-icon">💥</div>
         <div class="status-title" style="color:var(--danger);">FAILED</div>
-        <div class="status-msg">任務失敗！請大聲告知隊友！</div>
+        <div class="status-msg">任務失敗！<br>請大聲告知隊友重置系統！</div>
         <button class="action-btn" style="background:var(--danger); color:#fff;" onclick="fullReset()">↻ 全員重置</button>
     </div>
 
     <div id="modal-overlay" class="hidden">
         <div class="modal-header">
-            <div style="color:#fff; font-weight:bold;">協助隊友</div>
-            <button style="background:none; border:none; color:#fff; font-size:2rem;" onclick="closeCodebook()">✕</button>
+            <div style="color:#fff; font-weight:bold; font-size:1.2rem;">協助隊友</div>
+            <button style="background:none; border:none; color:#fff; font-size:2.5rem;" onclick="closeCodebook()">✕</button>
         </div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('fruits')" id="tab-fruits">水果</button>
@@ -256,30 +251,53 @@
     </div>
 
     <script>
-        // --- 1. 硬編碼資料庫 (Hardcoded Database) ---
-        // 格式：英文 + 數字混合，避免 I,O,0,1
-        const database = {
-            A: {
-                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'X7K9'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'M3R2'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'H8V5'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'T2B6'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'P9L4'}],
-                animals: [{n:'獅子', en:'LION', i:'🦁', c:'W4N7'}, {n:'老虎', en:'TIGER', i:'🐯', c:'J6Q3'}, {n:'熊', en:'BEAR', i:'🐻', c:'Z2F8'}, {n:'狼', en:'WOLF', i:'🐺', c:'K5Y9'}, {n:'狐狸', en:'FOX', i:'🦊', c:'R8C2'}],
-                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'B7M3'}, {n:'松樹', en:'PINE', i:'🌲', c:'D4G9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'S5X2'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'V9H6'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'L3T8'}]
-            },
-            B: {
-                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'C8J2'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'F5N9'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'Y3W7'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'Q6P4'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'A9K5'}],
-                animals: [{n:'獅子', en:'LION', i:'🦁', c:'R2D8'}, {n:'老虎', en:'TIGER', i:'🐯', c:'M7V3'}, {n:'熊', en:'BEAR', i:'🐻', c:'T4L6'}, {n:'狼', en:'WOLF', i:'🐺', c:'H9B2'}, {n:'狐狸', en:'FOX', i:'🦊', c:'G5X8'}],
-                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'S6Z4'}, {n:'松樹', en:'PINE', i:'🌲', c:'K3C9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'W8F2'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'J5Y7'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'P2M6'}]
-            },
-            C: {
-                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'L4H9'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'Z7K3'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'X2N6'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'B5R8'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'V3T9'}],
-                animals: [{n:'獅子', en:'LION', i:'🦁', c:'Q9J4'}, {n:'老虎', en:'TIGER', i:'🐯', c:'W6M2'}, {n:'熊', en:'BEAR', i:'🐻', c:'F8P5'}, {n:'狼', en:'WOLF', i:'🐺', c:'C3D7'}, {n:'狐狸', en:'FOX', i:'🦊', c:'Y5G2'}],
-                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'H7S3'}, {n:'松樹', en:'PINE', i:'🌲', c:'T2L9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'K6B4'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'R9X5'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'M4V8'}]
-            },
-            D: {
-                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'G3Y6'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'P7W2'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'J9F4'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'N5K8'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'D2R9'}],
-                animals: [{n:'獅子', en:'LION', i:'🦁', c:'S8T3'}, {n:'老虎', en:'TIGER', i:'🐯', c:'L6H2'}, {n:'熊', en:'BEAR', i:'🐻', c:'V4C7'}, {n:'狼', en:'WOLF', i:'🐺', c:'B9M5'}, {n:'狐狸', en:'FOX', i:'🦊', c:'Z3Q6'}],
-                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'X5J8'}, {n:'松樹', en:'PINE', i:'🌲', c:'R7N3'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'F2W9'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'C6P4'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'Y8K2'}]
-            }
+        // --- 1. 擴充資料庫 (10 items/cat, 4 roles) ---
+        // 格式：英文數字亂數 (排除 I,O,0,1)
+        const rawItems = {
+            fruits: [
+                {n:'香蕉', en:'BANANA', i:'🍌'}, {n:'蘋果', en:'APPLE', i:'🍎'}, {n:'葡萄', en:'GRAPE', i:'🍇'}, 
+                {n:'西瓜', en:'WATERMELON', i:'🍉'}, {n:'草莓', en:'STRAWBERRY', i:'🍓'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍'},
+                {n:'橘子', en:'ORANGE', i:'🍊'}, {n:'檸檬', en:'LEMON', i:'🍋'}, {n:'桃子', en:'PEACH', i:'🍑'}, 
+                {n:'櫻桃', en:'CHERRY', i:'🍒'}
+            ],
+            animals: [
+                {n:'獅子', en:'LION', i:'🦁'}, {n:'老虎', en:'TIGER', i:'🐯'}, {n:'熊', en:'BEAR', i:'🐻'}, 
+                {n:'狼', en:'WOLF', i:'🐺'}, {n:'狐狸', en:'FOX', i:'🦊'}, {n:'熊貓', en:'PANDA', i:'🐼'},
+                {n:'無尾熊', en:'KOALA', i:'🐨'}, {n:'兔子', en:'RABBIT', i:'🐰'}, {n:'貓咪', en:'CAT', i:'🐱'}, 
+                {n:'狗狗', en:'DOG', i:'🐶'}
+            ],
+            plants: [
+                {n:'仙人掌', en:'CACTUS', i:'🌵'}, {n:'松樹', en:'PINE', i:'🌲'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻'}, 
+                {n:'玫瑰', en:'ROSE', i:'🌹'}, {n:'鬱金香', en:'TULIP', i:'🌷'}, {n:'楓葉', en:'MAPLE', i:'🍁'},
+                {n:'蘑菇', en:'MUSHROOM', i:'🍄'}, {n:'竹子', en:'BAMBOO', i:'🎋'}, {n:'椰子樹', en:'PALM', i:'🌴'}, 
+                {n:'幸運草', en:'CLOVER', i:'🍀'}
+            ]
         };
+
+        // 亂數產生器 (確保不重複)
+        const usedCodes = new Set();
+        function getUniqueCode() {
+            const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // 排除 0,1,I,O
+            while(true) {
+                let code = "";
+                for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+                if(!usedCodes.has(code)) {
+                    usedCodes.add(code);
+                    return code;
+                }
+            }
+        }
+
+        // 產生完整資料庫
+        const database = { A:{}, B:{}, C:{}, D:{} };
+        ['A','B','C','D'].forEach(role => {
+            ['fruits','animals','plants'].forEach(cat => {
+                database[role][cat] = rawItems[cat].map(item => ({
+                    ...item,
+                    c: getUniqueCode() // 每個人的每個項目代碼都獨一無二
+                }));
+            });
+        });
 
         // --- 2. 遊戲狀態 ---
         let playerCount = 2;
@@ -321,44 +339,39 @@
             document.getElementById('screen-setup').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
             
-            // 設定我的主題色
-            const myColor = roles[myRoleIndex].color;
-            document.getElementById('unlock-btn').style.background = myColor;
+            // 主題色
+            document.getElementById('unlock-btn').style.background = roles[myRoleIndex].color;
+            document.getElementById('unlock-btn').style.color = '#fff';
             
             updateGameState();
         }
 
-        // --- 4. 核心邏輯 (Game Loop) ---
+        // --- 4. 核心邏輯 ---
         function updateGameState() {
-            // 計算這一局是誰的 Turn
+            // 計算回合主角
             const activeIndex = (currentLevel - 1) % playerCount;
             const activeRole = roles[activeIndex];
             
-            // 計算助手 (Active 的下一個)
+            // 計算助手
             const helperIndex = (activeIndex + 1) % playerCount;
             const helperRole = roles[helperIndex];
 
-            // UI 更新
-            document.getElementById('level-display').innerText = `LEVEL ${currentLevel}`;
-            const turnBadge = document.getElementById('turn-display');
-            turnBadge.innerText = `TURN: ${activeRole.id}`;
-            turnBadge.style.color = activeRole.color;
+            // 頂部更新
+            document.getElementById('header-info').innerText = `LEVEL ${currentLevel} | TURN: ${activeRole.id}`;
+            document.getElementById('header-info').style.color = activeRole.color;
 
             const isMyTurn = (myRoleIndex === activeIndex);
             const isHelper = (myRoleIndex === helperIndex);
 
-            // 切換視圖
             if (isMyTurn) {
                 // === 主攻手 ===
                 document.getElementById('active-view').classList.remove('hidden');
                 document.getElementById('passive-view').classList.add('hidden');
-                document.getElementById('btn-book').classList.remove('highlight'); // 主攻手不該查本子
+                document.getElementById('btn-book').classList.remove('highlight');
                 
-                // 更新提示
                 document.getElementById('helper-name').innerText = helperRole.name;
                 document.getElementById('helper-name').style.color = helperRole.color;
                 
-                // 載入題目 & 重置生命
                 resetLives();
                 loadTarget(activeRole.id);
 
@@ -366,10 +379,10 @@
                 // === 待機者 ===
                 document.getElementById('active-view').classList.add('hidden');
                 document.getElementById('passive-view').classList.remove('hidden');
+                
                 document.getElementById('passive-turn-name').innerText = activeRole.name;
                 document.getElementById('passive-turn-name').style.color = activeRole.color;
                 
-                // 助手高亮提示
                 const bookBtn = document.getElementById('btn-book');
                 if (isHelper) {
                     bookBtn.classList.add('highlight');
@@ -409,27 +422,18 @@
 
         function checkCode() {
             const input = document.getElementById('input-code').value.toUpperCase().trim();
-            
             if (input === currentTarget.c) {
-                // 成功
                 document.getElementById('screen-success').classList.remove('hidden');
             } else {
-                // 失敗
                 lives--;
                 updateLivesUI();
                 document.getElementById('input-code').value = '';
                 
-                // 震動回饋
                 const wrap = document.querySelector('.input-wrapper');
-                wrap.animate([
-                    {transform:'translateX(0)'}, {transform:'translateX(10px)'}, 
-                    {transform:'translateX(-10px)'}, {transform:'translateX(0)'}
-                ], {duration:200});
+                wrap.animate([{transform:'translateX(0)'}, {transform:'translateX(10px)'}, {transform:'translateX(-10px)'}, {transform:'translateX(0)'}], {duration:200});
 
                 if (lives <= 0) {
-                    setTimeout(() => {
-                        document.getElementById('screen-fail').classList.remove('hidden');
-                    }, 300);
+                    setTimeout(() => document.getElementById('screen-fail').classList.remove('hidden'), 300);
                 }
             }
         }
@@ -442,7 +446,7 @@
         }
 
         function confirmReset() {
-            if(confirm('確定要重置任務嗎？\n這會回到首頁，所有人進度歸零。')) {
+            if(confirm('⚠ 警告：確定要重置任務嗎？\n所有人的進度將會消失，回到首頁。')) {
                 fullReset();
             }
         }
@@ -451,7 +455,7 @@
             location.reload();
         }
 
-        // --- 6. 密碼本邏輯 ---
+        // --- 6. 密碼本 ---
         function openCodebook() {
             document.getElementById('modal-overlay').classList.remove('hidden');
             const catIdx = (currentLevel - 1) % 3;
@@ -464,7 +468,7 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${cat}`).classList.add('active');
             
-            // 永遠顯示「當前主攻手」的答案
+            // 顯示「當前主攻手」的答案
             const activeIndex = (currentLevel - 1) % playerCount;
             const targetRoleID = roles[activeIndex].id;
             renderList(database[targetRoleID][cat]);
