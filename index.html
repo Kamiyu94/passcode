@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DUAL AGENT TERMINAL</title>
+    <title>DUAL AGENT LINK</title>
     <style>
         :root {
             --bg-color: #000000;
-            --text-main: #e0e0e0;
+            --text-main: #ffffff;
             --highlight-a: #ff3333; /* 特務 A 紅色 */
             --highlight-b: #3388ff; /* 特務 B 藍色 */
             --common: #00ff41;      /* 通用綠色 */
-            --panel-bg: #111111;
+            --panel-bg: #1a1a1a;
             --border: #333;
         }
 
@@ -22,130 +22,203 @@
             color: var(--text-main);
             font-family: 'Consolas', 'Monaco', monospace;
             margin: 0;
-            height: 100dvh;
+            /* 使用 100dvh 避免手機瀏覽器網址列遮擋問題 */
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         .hidden { display: none !important; }
 
-        /* --- SCREEN 1: SELECTION --- */
+        /* --- 1. 角色選擇頁面 --- */
         #screen-select {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px;
         }
+        
+        .title-box {
+            text-align: center; margin-bottom: 40px; border: 2px solid #fff; padding: 10px 20px;
+        }
+
         .role-btn {
-            width: 100%; max-width: 300px; padding: 30px; margin: 15px 0;
-            font-size: 1.5rem; font-weight: bold; border-radius: 12px;
+            width: 100%; max-width: 320px; padding: 30px; margin: 15px 0;
+            font-size: 1.5rem; font-weight: bold; border-radius: 16px;
             border: 2px solid #555; background: #111; color: #fff; cursor: pointer;
             text-transform: uppercase; transition: transform 0.1s;
+            display: flex; align-items: center; justify-content: center;
         }
         .role-btn:active { transform: scale(0.95); }
-        .role-a { border-color: var(--highlight-a); color: var(--highlight-a); }
-        .role-b { border-color: var(--highlight-b); color: var(--highlight-b); }
+        .role-a { border-color: var(--highlight-a); color: var(--highlight-a); box-shadow: 0 0 15px rgba(255, 51, 51, 0.2); }
+        .role-b { border-color: var(--highlight-b); color: var(--highlight-b); box-shadow: 0 0 15px rgba(51, 136, 255, 0.2); }
 
-        /* --- SCREEN 2: GAME --- */
+        /* --- 2. 遊戲主頁面 --- */
         #screen-game {
-            flex: 1; display: flex; flex-direction: column; padding: 20px; padding-top: 5vh; align-items: center;
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            padding: 20px;
+            padding-bottom: 50px; /* 預留底部空間 */
+            overflow-y: auto; /* 允許內容過長時捲動 */
         }
 
-        /* Header Info */
+        /* 頂部資訊列 */
         .status-bar {
-            width: 100%; display: flex; justify-content: space-between; 
-            border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;
-            font-size: 0.9rem; color: #888;
+            width: 100%; max-width: 400px;
+            display: flex; justify-content: space-between; 
+            border-bottom: 2px solid #333; 
+            padding-bottom: 10px; margin-bottom: 20px;
+            font-size: 1rem; color: #888; font-weight: bold;
         }
-        #role-indicator { font-weight: bold; font-size: 1.1rem; }
 
-        /* Target Display */
-        .target-area { text-align: center; margin-bottom: 30px; flex: 1; display: flex; flex-direction: column; justify-content: center;}
-        .target-icon { font-size: 6rem; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
-        .target-name { font-size: 1.5rem; color: #fff; font-weight: bold; letter-spacing: 2px; }
-        
-        @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+        /* 任務目標區 (圖示與名稱) */
+        .target-area { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            width: 100%; max-width: 400px;
+        }
+        .target-icon { font-size: 6rem; display: block; margin-bottom: 10px; animation: pulse 2s infinite; }
+        .target-name { font-size: 1.8rem; color: #fff; font-weight: bold; letter-spacing: 2px; }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
-        /* Input Area */
-        .input-area { width: 100%; max-width: 320px; text-align: center; margin-bottom: 20px; }
+        /* 輸入區 */
+        .input-area { 
+            width: 100%; max-width: 400px; 
+            text-align: center; 
+            margin-bottom: 40px; /* 與下方按鈕保持距離 */
+        }
         .game-input {
-            background: #000; border: 2px solid #555; color: #fff;
-            font-size: 2rem; padding: 15px; width: 100%; text-align: center;
-            border-radius: 8px; outline: none; font-family: inherit; letter-spacing: 2px;
+            background: #000; border: 3px solid #555; color: #fff;
+            font-size: 2.5rem; padding: 15px; width: 100%; text-align: center;
+            border-radius: 12px; outline: none; font-family: inherit; letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
         }
+        .game-input:focus { border-color: #fff; }
+
         .submit-btn {
-            margin-top: 15px; width: 100%; padding: 15px; font-size: 1.2rem;
-            background: #222; border: 1px solid #555; color: #aaa; border-radius: 8px;
+            width: 100%; padding: 15px; font-size: 1.2rem;
+            background: #222; border: 1px solid #555; color: #aaa; border-radius: 12px;
+            font-weight: bold;
         }
-        
-        /* Codebook Button */
-        .codebook-trigger {
-            position: fixed; bottom: 30px; right: 20px;
-            background: var(--common); color: #000;
-            width: 60px; height: 60px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; box-shadow: 0 0 20px rgba(0,255,65,0.3);
-            z-index: 50; border: none; cursor: pointer;
-        }
-        .codebook-label {
-            position: absolute; right: 70px; background: #000; color: var(--common);
-            padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;
-            border: 1px solid var(--common);
+        .submit-btn:active { background: #333; color: #fff; }
+
+        /* 錯誤訊息 */
+        #msg-box {
+            height: 30px; color: #ff3333; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;
         }
 
-        /* --- MODAL: CODEBOOK --- */
+        /* 密碼本按鈕 (不再是懸浮，而是巨大的區塊) */
+        .codebook-btn-container {
+            width: 100%; max-width: 400px;
+            margin-top: auto; /* 推到底部 */
+        }
+        .codebook-btn {
+            width: 100%;
+            padding: 25px;
+            background: var(--common); 
+            color: #000;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 900;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 255, 65, 0.3);
+            cursor: pointer;
+        }
+        .codebook-btn:active { transform: scale(0.98); filter: brightness(0.9); }
+
+        /* --- 3. 密碼本視窗 (Modal) --- */
         #modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100;
+            background: #111; z-index: 100;
             display: flex; flex-direction: column;
         }
         .modal-header {
-            padding: 15px; background: #111; border-bottom: 1px solid #333;
+            padding: 20px; background: #222; border-bottom: 2px solid #444;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; padding: 0 10px; }
-        
-        /* Tabs */
-        .tabs { display: flex; width: 100%; background: #000; }
-        .tab-btn {
-            flex: 1; padding: 15px 0; background: #111; color: #666; border: none; border-bottom: 3px solid transparent; font-weight: bold;
+        .modal-title { font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .modal-close { 
+            background: #444; border: none; color: #fff; 
+            font-size: 1.5rem; width: 40px; height: 40px; border-radius: 50%; 
         }
-        .tab-btn.active { background: #222; color: var(--common); border-bottom-color: var(--common); }
 
-        /* List */
+        /* 分頁按鈕 */
+        .tabs { display: flex; width: 100%; background: #000; padding: 10px; gap: 10px; }
+        .tab-btn {
+            flex: 1; padding: 15px 0; background: #1a1a1a; color: #888; 
+            border: 2px solid #333; border-radius: 8px; font-weight: bold; font-size: 1rem;
+        }
+        .tab-btn.active { 
+            background: #222; color: var(--common); border-color: var(--common); 
+        }
+
+        /* 密碼列表 */
         #code-list {
-            flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start;
+            flex: 1; overflow-y: auto; padding: 15px; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-content: start;
+            padding-bottom: 50px;
         }
         .code-item {
-            background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333;
+            background: #1a1a1a; padding: 15px; border-radius: 12px; border: 1px solid #333;
             display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .item-icon { font-size: 2rem; margin-bottom: 5px; }
-        .item-code { color: var(--common); font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; }
-        .item-name { color: #888; font-size: 0.8rem; margin-top: 2px; }
+        .item-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .item-code { color: var(--common); font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; margin: 5px 0; }
+        .item-name { color: #aaa; font-size: 0.9rem; }
 
-        /* SUCCESS OVERLAY */
+        /* --- 4. 成功過關畫面 --- */
         #screen-success {
-            background: rgba(0, 30, 0, 0.95); justify-content: center; text-align: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 20, 0, 0.98); 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 90; text-align: center; padding: 20px;
         }
         .next-btn {
-            background: var(--common); color: #000; padding: 20px 40px; font-size: 1.5rem; border: none; border-radius: 50px; margin-top: 30px; font-weight: bold;
-            box-shadow: 0 0 30px rgba(0,255,65,0.5);
+            background: var(--common); color: #000; padding: 20px 50px; 
+            font-size: 1.5rem; border: none; border-radius: 50px; 
+            margin-top: 40px; font-weight: bold;
+            box-shadow: 0 0 30px rgba(0,255,65,0.6);
+            animation: float 2s infinite;
         }
+        @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-5px);} }
 
     </style>
 </head>
 <body>
 
     <div id="screen-select">
-        <h1 style="color: #fff; letter-spacing: 3px; margin-bottom: 40px;">TERMINAL LINK</h1>
-        <button class="role-btn role-a" onclick="initGame('A')">我是特務 A<br><span style="font-size:0.9rem; opacity:0.7;">(Agent Alpha)</span></button>
-        <button class="role-btn role-b" onclick="initGame('B')">我是特務 B<br><span style="font-size:0.9rem; opacity:0.7;">(Agent Bravo)</span></button>
-        <p style="color:#666; font-size:0.8rem; margin-top:30px;">請在兩台裝置分別選擇不同角色</p>
+        <div class="title-box">
+            <h1 style="margin:0; letter-spacing:4px;">DUAL LINK</h1>
+            <div style="font-size:0.8rem; color:#888; margin-top:5px;">CO-OP TERMINAL</div>
+        </div>
+        
+        <button class="role-btn role-a" onclick="initGame('A')">
+            🔴 我是特務 A
+        </button>
+        
+        <button class="role-btn role-b" onclick="initGame('B')">
+            🔵 我是特務 B
+        </button>
+        
+        <p style="color:#666; font-size:0.9rem; margin-top:40px; text-align:center;">
+            請兩位玩家分別選擇不同身分<br>
+            Do not choose the same role.
+        </p>
     </div>
 
     <div id="screen-game" class="hidden">
         <div class="status-bar">
-            <span id="role-indicator">AGENT A</span>
-            <span id="level-indicator">PHASE 1: FRUITS</span>
+            <span id="role-indicator">AGENT ?</span>
+            <span id="level-indicator">PHASE 1</span>
         </div>
 
         <div class="target-area">
@@ -154,29 +227,32 @@
             <span id="target-name" class="target-name">LOADING...</span>
         </div>
 
+        <div id="msg-box"></div>
+
         <div class="input-area">
-            <input type="number" id="input-code" class="game-input" placeholder="輸入代碼" inputmode="numeric">
+            <input type="text" id="input-code" class="game-input" placeholder="CODE" maxlength="4" autocomplete="off">
             <button class="submit-btn" onclick="checkCode()">解鎖 / UNLOCK</button>
         </div>
-        
-        <div id="msg-box" style="height: 20px; color: #ff3333; font-weight: bold;"></div>
 
-        <button class="codebook-trigger" onclick="openCodebook()">
-            📖
-            <div class="codebook-label">查詢隊友代碼</div>
-        </button>
+        <div class="codebook-btn-container">
+            <button class="codebook-btn" onclick="openCodebook()">
+                📖 查看隊友密碼本
+            </button>
+        </div>
     </div>
 
-    <div id="screen-success" class="hidden screen" style="position:fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; align-items:center; z-index:90;">
-        <div style="font-size: 5rem;">✅</div>
-        <h2 style="color: var(--common); font-size: 2rem; margin: 20px 0;">ACCESS GRANTED</h2>
-        <p style="color: #fff;">代碼正確，準備進入下一層級。</p>
+    <div id="screen-success" class="hidden">
+        <div style="font-size: 6rem; margin-bottom: 20px;">✅</div>
+        <h2 style="color: var(--common); font-size: 2.5rem; margin: 0;">SUCCESS</h2>
+        <p style="color: #fff; font-size: 1.2rem; margin-top: 10px; opacity: 0.8;">
+            代碼正確<br>Access Granted
+        </p>
         <button class="next-btn" onclick="nextLevel()">下一關 ➔</button>
     </div>
 
     <div id="modal-overlay" class="hidden">
         <div class="modal-header">
-            <span style="color:#fff; font-weight:bold;">協助隊友查詢代碼</span>
+            <div class="modal-title">協助隊友查詢代碼</div>
             <button class="modal-close" onclick="closeCodebook()">✕</button>
         </div>
         <div class="tabs">
@@ -189,125 +265,139 @@
     </div>
 
     <script>
-        // --- 資料庫 (Database) ---
-        // 兩個隊伍對同一個物品有「不同的代碼」
-        const rawData = {
-            fruits: [
-                {n:'香蕉', i:'🍌'}, {n:'蘋果', i:'🍎'}, {n:'葡萄', i:'🍇'}, {n:'西瓜', i:'🍉'},
-                {n:'草莓', i:'🍓'}, {n:'鳳梨', i:'🍍'}, {n:'橘子', i:'🍊'}, {n:'檸檬', i:'🍋'},
-                {n:'桃子', i:'🍑'}, {n:'櫻桃', i:'🍒'}, {n:'梨子', i:'🍐'}, {n:'奇異果', i:'🥝'}
-            ],
-            animals: [
-                {n:'獅子', i:'🦁'}, {n:'老虎', i:'🐯'}, {n:'熊', i:'🐻'}, {n:'狼', i:'🐺'},
-                {n:'狐狸', i:'🦊'}, {n:'熊貓', i:'🐼'}, {n:'無尾熊', i:'🐨'}, {n:'兔子', i:'🐰'},
-                {n:'老鼠', i:'🐭'}, {n:'貓咪', i:'🐱'}, {n:'狗狗', i:'🐶'}, {n:'猴子', i:'🐵'}
-            ],
-            plants: [
-                {n:'仙人掌', i:'🌵'}, {n:'松樹', i:'🌲'}, {n:'向日葵', i:'🌻'}, {n:'玫瑰', i:'🌹'},
-                {n:'鬱金香', i:'🌷'}, {n:'楓葉', i:'🍁'}, {n:'蘑菇', i:'🍄'}, {n:'竹子', i:'🎋'},
-                {n:'椰子樹', i:'🌴'}, {n:'幸運草', i:'🍀'}, {n:'稻穗', i:'🌾'}, {n:'芙蓉', i:'🌺'}
-            ]
+        // --- 1. 硬編碼資料庫 (Hardcoded Database) ---
+        // 確保所有裝置的代碼都是固定的，不會因為重新整理而改變
+        // 格式：英文+數字混和 (Alphanumeric)
+        
+        const database = {
+            // A 的題目 (Target)，同時也是 B 的密碼本內容
+            A: {
+                fruits: [
+                    {n:'香蕉', i:'🍌', c:'A3X9'}, {n:'蘋果', i:'🍎', c:'P8K2'}, {n:'葡萄', i:'🍇', c:'L5Z1'},
+                    {n:'西瓜', i:'🍉', c:'W4N7'}, {n:'草莓', i:'🍓', c:'S9R3'}, {n:'鳳梨', i:'🍍', c:'B2M6'},
+                    {n:'橘子', i:'🍊', c:'O7T4'}, {n:'檸檬', i:'🍋', c:'Y1H5'}, {n:'桃子', i:'🍑', c:'J6Q8'},
+                    {n:'櫻桃', i:'🍒', c:'C3V9'}, {n:'梨子', i:'🍐', c:'D5F2'}, {n:'奇異果', i:'🥝', c:'G8E4'}
+                ],
+                animals: [
+                    {n:'獅子', i:'🦁', c:'H4U9'}, {n:'老虎', i:'🐯', c:'T7I2'}, {n:'熊', i:'🐻', c:'B5O1'},
+                    {n:'狼', i:'🐺', c:'W8Y6'}, {n:'狐狸', i:'🦊', c:'F3L7'}, {n:'熊貓', i:'🐼', c:'P9A4'},
+                    {n:'無尾熊', i:'🐨', c:'K2J8'}, {n:'兔子', i:'🐰', c:'R6M3'}, {n:'老鼠', i:'🐭', c:'M1N5'},
+                    {n:'貓咪', i:'🐱', c:'C7X2'}, {n:'狗狗', i:'🐶', c:'D4Q9'}, {n:'猴子', i:'🐵', c:'S2Z6'}
+                ],
+                plants: [
+                    {n:'仙人掌', i:'🌵', c:'C8K3'}, {n:'松樹', i:'🌲', c:'T5R9'}, {n:'向日葵', i:'🌻', c:'S2L6'},
+                    {n:'玫瑰', i:'🌹', c:'R7V4'}, {n:'鬱金香', i:'🌷', c:'U1H8'}, {n:'楓葉', i:'🍁', c:'M9P2'},
+                    {n:'蘑菇', i:'🍄', c:'F4X7'}, {n:'竹子', i:'🎋', c:'B6O3'}, {n:'椰子樹', i:'🌴', c:'P3Y5'},
+                    {n:'幸運草', i:'🍀', c:'L8N1'}, {n:'稻穗', i:'🌾', c:'G5J2'}, {n:'芙蓉', i:'🌺', c:'H9Q4'}
+                ]
+            },
+            // B 的題目 (Target)，同時也是 A 的密碼本內容 (代碼必須與 A 不同)
+            B: {
+                fruits: [
+                    {n:'香蕉', i:'🍌', c:'K9R2'}, {n:'蘋果', i:'🍎', c:'Z4M7'}, {n:'葡萄', i:'🍇', c:'X3P5'},
+                    {n:'西瓜', i:'🍉', c:'N8Y1'}, {n:'草莓', i:'🍓', c:'Q6L3'}, {n:'鳳梨', i:'🍍', c:'F2T9'},
+                    {n:'橘子', i:'🍊', c:'V5H4'}, {n:'檸檬', i:'🍋', c:'E7J8'}, {n:'桃子', i:'🍑', c:'O1W6'},
+                    {n:'櫻桃', i:'🍒', c:'S9G2'}, {n:'梨子', i:'🍐', c:'A4B8'}, {n:'奇異果', i:'🥝', c:'C5D3'}
+                ],
+                animals: [
+                    {n:'獅子', i:'🦁', c:'U2X7'}, {n:'老虎', i:'🐯', c:'I5O9'}, {n:'熊', i:'🐻', c:'L8V4'},
+                    {n:'狼', i:'🐺', c:'Y3K6'}, {n:'狐狸', i:'🦊', c:'J1M5'}, {n:'熊貓', i:'🐼', c:'N7R2'},
+                    {n:'無尾熊', i:'🐨', c:'H4T8'}, {n:'兔子', i:'🐰', c:'Q9S1'}, {n:'老鼠', i:'🐭', c:'P6F3'},
+                    {n:'貓咪', i:'🐱', c:'G2B9'}, {n:'狗狗', i:'🐶', c:'E5W8'}, {n:'猴子', i:'🐵', c:'D3A7'}
+                ],
+                plants: [
+                    {n:'仙人掌', i:'🌵', c:'R9L4'}, {n:'松樹', i:'🌲', c:'M2H7'}, {n:'向日葵', i:'🌻', c:'K5P3'},
+                    {n:'玫瑰', i:'🌹', c:'V8X1'}, {n:'鬱金香', i:'🌷', c:'J4O6'}, {n:'楓葉', i:'🍁', c:'T7C2'},
+                    {n:'蘑菇', i:'🍄', c:'B3S9'}, {n:'竹子', i:'🎋', c:'N6F5'}, {n:'椰子樹', i:'🌴', c:'Q1G8'},
+                    {n:'幸運草', i:'🍀', c:'Y5D2'}, {n:'稻穗', i:'🌾', c:'W8A4'}, {n:'芙蓉', i:'🌺', c:'Z3E7'}
+                ]
+            }
         };
 
-        // 產生亂數代碼的函數 (保證 A 和 B 不同)
-        function generateCodes() {
-            const db = { A: { fruits:[], animals:[], plants:[] }, B: { fruits:[], animals:[], plants:[] } };
-            
-            ['fruits', 'animals', 'plants'].forEach(cat => {
-                rawData[cat].forEach(item => {
-                    // 為 A 產生一個 4 位數代碼
-                    let codeA = Math.floor(1000 + Math.random() * 9000).toString();
-                    // 為 B 產生一個不同的 4 位數代碼
-                    let codeB = Math.floor(1000 + Math.random() * 9000).toString();
-                    while(codeB === codeA) codeB = Math.floor(1000 + Math.random() * 9000).toString();
-
-                    db.A[cat].push({ ...item, c: codeA });
-                    db.B[cat].push({ ...item, c: codeB });
-                });
-            });
-            return db;
-        }
-
-        // 初始化資料庫
-        const fullDB = generateCodes();
-
-        // --- 遊戲狀態 ---
+        // --- 2. 遊戲變數 ---
         let myRole = null;    // 'A' or 'B'
         let otherRole = null; // 'B' or 'A'
-        let phaseIndex = 0;   // 0=fruits, 1=animals, 2=plants, 3=fruits...
+        let phaseIndex = 0;   
         const phaseOrder = ['fruits', 'animals', 'plants'];
         let currentTarget = null;
-        let currentTab = 'fruits'; // 密碼本當前分頁
 
-        // --- 核心邏輯 ---
-
+        // --- 3. 初始化與邏輯 ---
         function initGame(role) {
             myRole = role;
             otherRole = (role === 'A') ? 'B' : 'A';
             
-            // 設定 UI 顏色
-            const color = (role === 'A') ? '#ff3333' : '#3388ff';
-            document.getElementById('input-code').style.borderColor = color;
+            // 設定顏色
+            const color = (role === 'A') ? 'var(--highlight-a)' : 'var(--highlight-b)';
             document.getElementById('role-indicator').innerText = `AGENT ${role}`;
             document.getElementById('role-indicator').style.color = color;
+            document.getElementById('input-code').style.borderColor = color;
 
             // 切換畫面
             document.getElementById('screen-select').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
-
-            // 開始第一關
+            
             loadPhase();
         }
 
         function loadPhase() {
-            // 計算當前類別
             const catName = phaseOrder[phaseIndex % 3];
             const phaseNum = phaseIndex + 1;
             
-            // 更新標題
-            document.getElementById('level-indicator').innerText = `LV.${phaseNum}: ${catName.toUpperCase()}`;
+            document.getElementById('level-indicator').innerText = `PHASE ${phaseNum}: ${catName.toUpperCase()}`;
             
-            // 隨機選取目標 (從我自己的數據庫選)
-            const list = fullDB[myRole][catName];
+            // 隨機選取目標 (從我自己的資料庫 myRole 選擇)
+            const list = database[myRole][catName];
             currentTarget = list[Math.floor(Math.random() * list.length)];
             
-            // 顯示目標
+            // 顯示
             document.getElementById('target-icon').innerText = currentTarget.i;
             document.getElementById('target-name').innerText = currentTarget.n;
+            
+            // 重置輸入框
             document.getElementById('input-code').value = '';
             document.getElementById('msg-box').innerText = '';
         }
 
         function checkCode() {
-            const input = document.getElementById('input-code').value;
+            const inputEl = document.getElementById('input-code');
+            let input = inputEl.value.toUpperCase().trim();
+            
             if (input === currentTarget.c) {
-                // 成功
-                const successScreen = document.getElementById('screen-success');
-                successScreen.style.display = 'flex'; // Flex to center content
+                document.getElementById('screen-success').classList.remove('hidden');
             } else {
-                // 失敗
                 const msg = document.getElementById('msg-box');
-                msg.innerText = '⛔ ACCESS DENIED (密碼錯誤)';
-                const inputEl = document.getElementById('input-code');
+                msg.innerText = '❌ ACCESS DENIED';
                 inputEl.style.borderColor = 'red';
-                setTimeout(() => { inputEl.style.borderColor = (myRole==='A'?'#ff3333':'#3388ff'); msg.innerText=''; }, 1000);
+                
+                // 震動效果 (CSS)
+                inputEl.animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(10px)' },
+                    { transform: 'translateX(-10px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 200 });
+
+                setTimeout(() => { 
+                    inputEl.style.borderColor = (myRole === 'A' ? 'var(--highlight-a)' : 'var(--highlight-b)'); 
+                    msg.innerText = ''; 
+                }, 1500);
+                
                 inputEl.value = '';
             }
         }
 
         function nextLevel() {
-            document.getElementById('screen-success').style.display = 'none';
+            document.getElementById('screen-success').classList.add('hidden');
             phaseIndex++;
             loadPhase();
         }
 
-        // --- 密碼本邏輯 (顯示對方的資料) ---
-
+        // --- 4. 密碼本邏輯 ---
         function openCodebook() {
             document.getElementById('modal-overlay').classList.remove('hidden');
-            // 預設打開當前關卡對應的類別，方便玩家
+            // 預設打開當前關卡對應的類別
             const currentCat = phaseOrder[phaseIndex % 3];
-            switchTab(currentCat); 
+            switchTab(currentCat);
         }
 
         function closeCodebook() {
@@ -315,21 +405,20 @@
         }
 
         function switchTab(cat) {
-            currentTab = cat;
-            
-            // 更新 Tab 樣式
+            // UI 更新
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${cat}`).classList.add('active');
 
-            // 渲染列表 (顯示對方的資料!)
-            renderList(fullDB[otherRole][cat]);
+            // 渲染列表：顯示「對方」的資料 (otherRole)
+            const list = database[otherRole][cat];
+            renderList(list);
         }
 
         function renderList(list) {
             const container = document.getElementById('code-list');
             container.innerHTML = '';
 
-            // 複製一份並洗牌 (Shuffle)
+            // 每次打開都洗牌 (Shuffle)，防止玩家記位置
             const shuffled = [...list].sort(() => Math.random() - 0.5);
 
             shuffled.forEach(item => {
