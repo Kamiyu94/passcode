@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TEAM TACTICS v3.1</title>
+    <title>TEAM TACTICS v3.2 (SYNC)</title>
     <style>
         :root {
             --bg-color: #000000;
@@ -148,8 +148,8 @@
         #code-list { flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start; padding-bottom: 50px; }
         .code-item { background: #1a1a1a; padding: 15px; border-radius: 8px; text-align: center; border: 1px solid #333; }
         .item-code { color: var(--common); font-size: 1.5rem; font-weight: 900; margin: 5px 0; letter-spacing: 1px; }
-        .item-en { color: #fff; font-size: 0.9rem; font-weight: bold; }
-        .item-cn { color: #888; font-size: 0.9rem; }
+        .item-en { color: #fff; font-size: 0.8rem; font-weight: bold; }
+        .item-cn { color: #888; font-size: 0.8rem; }
 
         /* --- 4. 狀態畫面 --- */
         #screen-success, #screen-fail {
@@ -251,53 +251,30 @@
     </div>
 
     <script>
-        // --- 1. 擴充資料庫 (10 items/cat, 4 roles) ---
-        // 格式：英文數字亂數 (排除 I,O,0,1)
-        const rawItems = {
-            fruits: [
-                {n:'香蕉', en:'BANANA', i:'🍌'}, {n:'蘋果', en:'APPLE', i:'🍎'}, {n:'葡萄', en:'GRAPE', i:'🍇'}, 
-                {n:'西瓜', en:'WATERMELON', i:'🍉'}, {n:'草莓', en:'STRAWBERRY', i:'🍓'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍'},
-                {n:'橘子', en:'ORANGE', i:'🍊'}, {n:'檸檬', en:'LEMON', i:'🍋'}, {n:'桃子', en:'PEACH', i:'🍑'}, 
-                {n:'櫻桃', en:'CHERRY', i:'🍒'}
-            ],
-            animals: [
-                {n:'獅子', en:'LION', i:'🦁'}, {n:'老虎', en:'TIGER', i:'🐯'}, {n:'熊', en:'BEAR', i:'🐻'}, 
-                {n:'狼', en:'WOLF', i:'🐺'}, {n:'狐狸', en:'FOX', i:'🦊'}, {n:'熊貓', en:'PANDA', i:'🐼'},
-                {n:'無尾熊', en:'KOALA', i:'🐨'}, {n:'兔子', en:'RABBIT', i:'🐰'}, {n:'貓咪', en:'CAT', i:'🐱'}, 
-                {n:'狗狗', en:'DOG', i:'🐶'}
-            ],
-            plants: [
-                {n:'仙人掌', en:'CACTUS', i:'🌵'}, {n:'松樹', en:'PINE', i:'🌲'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻'}, 
-                {n:'玫瑰', en:'ROSE', i:'🌹'}, {n:'鬱金香', en:'TULIP', i:'🌷'}, {n:'楓葉', en:'MAPLE', i:'🍁'},
-                {n:'蘑菇', en:'MUSHROOM', i:'🍄'}, {n:'竹子', en:'BAMBOO', i:'🎋'}, {n:'椰子樹', en:'PALM', i:'🌴'}, 
-                {n:'幸運草', en:'CLOVER', i:'🍀'}
-            ]
-        };
-
-        // 亂數產生器 (確保不重複)
-        const usedCodes = new Set();
-        function getUniqueCode() {
-            const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // 排除 0,1,I,O
-            while(true) {
-                let code = "";
-                for(let i=0; i<4; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-                if(!usedCodes.has(code)) {
-                    usedCodes.add(code);
-                    return code;
-                }
+        // --- 1. 硬編碼資料庫 (固定密碼，確保所有裝置一致) ---
+        // A, B, C, D 四本完全不同
+        const database = {
+            A: {
+                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'X7K9'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'M3R2'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'H8V5'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'T2B6'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'P9L4'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍', c:'N4J8'}, {n:'橘子', en:'ORANGE', i:'🍊', c:'W5Q2'}, {n:'檸檬', en:'LEMON', i:'🍋', c:'R9F3'}, {n:'桃子', en:'PEACH', i:'🍑', c:'Z6C7'}, {n:'櫻桃', en:'CHERRY', i:'🍒', c:'K2Y5'}],
+                animals: [{n:'獅子', en:'LION', i:'🦁', c:'W4N7'}, {n:'老虎', en:'TIGER', i:'🐯', c:'J6Q3'}, {n:'熊', en:'BEAR', i:'🐻', c:'Z2F8'}, {n:'狼', en:'WOLF', i:'🐺', c:'K5Y9'}, {n:'狐狸', en:'FOX', i:'🦊', c:'R8C2'}, {n:'熊貓', en:'PANDA', i:'🐼', c:'T7D4'}, {n:'無尾熊', en:'KOALA', i:'🐨', c:'M9H2'}, {n:'兔子', en:'RABBIT', i:'🐰', c:'P3X6'}, {n:'貓咪', en:'CAT', i:'🐱', c:'B5L8'}, {n:'狗狗', en:'DOG', i:'🐶', c:'G4S9'}],
+                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'B7M3'}, {n:'松樹', en:'PINE', i:'🌲', c:'D4G9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'S5X2'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'V9H6'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'L3T8'}, {n:'楓葉', en:'MAPLE', i:'🍁', c:'Q2N5'}, {n:'蘑菇', en:'MUSHROOM', i:'🍄', c:'F8R4'}, {n:'竹子', en:'BAMBOO', i:'🎋', c:'C6J9'}, {n:'椰子樹', en:'PALM', i:'🌴', c:'Y7K2'}, {n:'幸運草', en:'CLOVER', i:'🍀', c:'P4W3'}]
+            },
+            B: {
+                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'C8J2'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'F5N9'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'Y3W7'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'Q6P4'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'A9K5'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍', c:'R2M8'}, {n:'橘子', en:'ORANGE', i:'🍊', c:'T7H3'}, {n:'檸檬', en:'LEMON', i:'🍋', c:'L4V6'}, {n:'桃子', en:'PEACH', i:'🍑', c:'G9X2'}, {n:'櫻桃', en:'CHERRY', i:'🍒', c:'D3B5'}],
+                animals: [{n:'獅子', en:'LION', i:'🦁', c:'R2D8'}, {n:'老虎', en:'TIGER', i:'🐯', c:'M7V3'}, {n:'熊', en:'BEAR', i:'🐻', c:'T4L6'}, {n:'狼', en:'WOLF', i:'🐺', c:'H9B2'}, {n:'狐狸', en:'FOX', i:'🦊', c:'G5X8'}, {n:'熊貓', en:'PANDA', i:'🐼', c:'N3K9'}, {n:'無尾熊', en:'KOALA', i:'🐨', c:'P6F4'}, {n:'兔子', en:'RABBIT', i:'🐰', c:'C2W7'}, {n:'貓咪', en:'CAT', i:'🐱', c:'Y8S5'}, {n:'狗狗', en:'DOG', i:'🐶', c:'J4Q2'}],
+                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'S6Z4'}, {n:'松樹', en:'PINE', i:'🌲', c:'K3C9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'W8F2'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'J5Y7'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'P2M6'}, {n:'楓葉', en:'MAPLE', i:'🍁', c:'B9H3'}, {n:'蘑菇', en:'MUSHROOM', i:'🍄', c:'T4R8'}, {n:'竹子', en:'BAMBOO', i:'🎋', c:'L7G5'}, {n:'椰子樹', en:'PALM', i:'🌴', c:'X2D9'}, {n:'幸運草', en:'CLOVER', i:'🍀', c:'V6N4'}]
+            },
+            C: {
+                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'L4H9'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'Z7K3'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'X2N6'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'B5R8'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'V3T9'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍', c:'M8P2'}, {n:'橘子', en:'ORANGE', i:'🍊', c:'F6J4'}, {n:'檸檬', en:'LEMON', i:'🍋', c:'C9W5'}, {n:'桃子', en:'PEACH', i:'🍑', c:'Q4Y7'}, {n:'櫻桃', en:'CHERRY', i:'🍒', c:'G2S3'}],
+                animals: [{n:'獅子', en:'LION', i:'🦁', c:'Q9J4'}, {n:'老虎', en:'TIGER', i:'🐯', c:'W6M2'}, {n:'熊', en:'BEAR', i:'🐻', c:'F8P5'}, {n:'狼', en:'WOLF', i:'🐺', c:'C3D7'}, {n:'狐狸', en:'FOX', i:'🦊', c:'Y5G2'}, {n:'熊貓', en:'PANDA', i:'🐼', c:'K4R9'}, {n:'無尾熊', en:'KOALA', i:'🐨', c:'T2B6'}, {n:'兔子', en:'RABBIT', i:'🐰', c:'H7N3'}, {n:'貓咪', en:'CAT', i:'🐱', c:'S9L5'}, {n:'狗狗', en:'DOG', i:'🐶', c:'V4X8'}],
+                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'H7S3'}, {n:'松樹', en:'PINE', i:'🌲', c:'T2L9'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'K6B4'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'R9X5'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'M4V8'}, {n:'楓葉', en:'MAPLE', i:'🍁', c:'P3C7'}, {n:'蘑菇', en:'MUSHROOM', i:'🍄', c:'D8F2'}, {n:'竹子', en:'BAMBOO', i:'🎋', c:'J5Q6'}, {n:'椰子樹', en:'PALM', i:'🌴', c:'N2G9'}, {n:'幸運草', en:'CLOVER', i:'🍀', c:'W7Y4'}]
+            },
+            D: {
+                fruits: [{n:'香蕉', en:'BANANA', i:'🍌', c:'G3Y6'}, {n:'蘋果', en:'APPLE', i:'🍎', c:'P7W2'}, {n:'葡萄', en:'GRAPE', i:'🍇', c:'J9F4'}, {n:'西瓜', en:'WATERMELON', i:'🍉', c:'N5K8'}, {n:'草莓', en:'STRAWBERRY', i:'🍓', c:'D2R9'}, {n:'鳳梨', en:'PINEAPPLE', i:'🍍', c:'H6L3'}, {n:'橘子', en:'ORANGE', i:'🍊', c:'X4M7'}, {n:'檸檬', en:'LEMON', i:'🍋', c:'B8T5'}, {n:'桃子', en:'PEACH', i:'🍑', c:'S2V9'}, {n:'櫻桃', en:'CHERRY', i:'🍒', c:'F5C4'}],
+                animals: [{n:'獅子', en:'LION', i:'🦁', c:'S8T3'}, {n:'老虎', en:'TIGER', i:'🐯', c:'L6H2'}, {n:'熊', en:'BEAR', i:'🐻', c:'V4C7'}, {n:'狼', en:'WOLF', i:'🐺', c:'B9M5'}, {n:'狐狸', en:'FOX', i:'🦊', c:'Z3Q6'}, {n:'熊貓', en:'PANDA', i:'🐼', c:'R5N2'}, {n:'無尾熊', en:'KOALA', i:'🐨', c:'K8J4'}, {n:'兔子', en:'RABBIT', i:'🐰', c:'G2P9'}, {n:'貓咪', en:'CAT', i:'🐱', c:'D7W3'}, {n:'狗狗', en:'DOG', i:'🐶', c:'X5F8'}],
+                plants: [{n:'仙人掌', en:'CACTUS', i:'🌵', c:'X5J8'}, {n:'松樹', en:'PINE', i:'🌲', c:'R7N3'}, {n:'向日葵', en:'SUNFLOWER', i:'🌻', c:'F2W9'}, {n:'玫瑰', en:'ROSE', i:'🌹', c:'C6P4'}, {n:'鬱金香', en:'TULIP', i:'🌷', c:'Y8K2'}, {n:'楓葉', en:'MAPLE', i:'🍁', c:'M3G7'}, {n:'蘑菇', en:'MUSHROOM', i:'🍄', c:'H9D5'}, {n:'竹子', en:'BAMBOO', i:'🎋', c:'T4B6'}, {n:'椰子樹', en:'PALM', i:'🌴', c:'L2S8'}, {n:'幸運草', en:'CLOVER', i:'🍀', c:'Q5V3'}]
             }
-        }
-
-        // 產生完整資料庫
-        const database = { A:{}, B:{}, C:{}, D:{} };
-        ['A','B','C','D'].forEach(role => {
-            ['fruits','animals','plants'].forEach(cat => {
-                database[role][cat] = rawItems[cat].map(item => ({
-                    ...item,
-                    c: getUniqueCode() // 每個人的每個項目代碼都獨一無二
-                }));
-            });
-        });
+        };
 
         // --- 2. 遊戲狀態 ---
         let playerCount = 2;
