@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>DUAL AGENT TERMINAL</title>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-main: #e0e0e0;
+            --highlight-a: #ff3333; /* 特務 A 紅色 */
+            --highlight-b: #3388ff; /* 特務 B 藍色 */
+            --common: #00ff41;      /* 通用綠色 */
+            --panel-bg: #111111;
+            --border: #333;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- SCREEN 1: SELECTION --- */
+        #screen-select {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+        }
+        .role-btn {
+            width: 100%; max-width: 300px; padding: 30px; margin: 15px 0;
+            font-size: 1.5rem; font-weight: bold; border-radius: 12px;
+            border: 2px solid #555; background: #111; color: #fff; cursor: pointer;
+            text-transform: uppercase; transition: transform 0.1s;
+        }
+        .role-btn:active { transform: scale(0.95); }
+        .role-a { border-color: var(--highlight-a); color: var(--highlight-a); }
+        .role-b { border-color: var(--highlight-b); color: var(--highlight-b); }
+
+        /* --- SCREEN 2: GAME --- */
+        #screen-game {
+            flex: 1; display: flex; flex-direction: column; padding: 20px; padding-top: 5vh; align-items: center;
+        }
+
+        /* Header Info */
+        .status-bar {
+            width: 100%; display: flex; justify-content: space-between; 
+            border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;
+            font-size: 0.9rem; color: #888;
+        }
+        #role-indicator { font-weight: bold; font-size: 1.1rem; }
+
+        /* Target Display */
+        .target-area { text-align: center; margin-bottom: 30px; flex: 1; display: flex; flex-direction: column; justify-content: center;}
+        .target-icon { font-size: 6rem; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+        .target-name { font-size: 1.5rem; color: #fff; font-weight: bold; letter-spacing: 2px; }
+        
+        @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+
+        /* Input Area */
+        .input-area { width: 100%; max-width: 320px; text-align: center; margin-bottom: 20px; }
+        .game-input {
+            background: #000; border: 2px solid #555; color: #fff;
+            font-size: 2rem; padding: 15px; width: 100%; text-align: center;
+            border-radius: 8px; outline: none; font-family: inherit; letter-spacing: 2px;
+        }
+        .submit-btn {
+            margin-top: 15px; width: 100%; padding: 15px; font-size: 1.2rem;
+            background: #222; border: 1px solid #555; color: #aaa; border-radius: 8px;
+        }
+        
+        /* Codebook Button */
+        .codebook-trigger {
+            position: fixed; bottom: 30px; right: 20px;
+            background: var(--common); color: #000;
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; box-shadow: 0 0 20px rgba(0,255,65,0.3);
+            z-index: 50; border: none; cursor: pointer;
+        }
+        .codebook-label {
+            position: absolute; right: 70px; background: #000; color: var(--common);
+            padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; white-space: nowrap;
+            border: 1px solid var(--common);
+        }
+
+        /* --- MODAL: CODEBOOK --- */
+        #modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100;
+            display: flex; flex-direction: column;
+        }
+        .modal-header {
+            padding: 15px; background: #111; border-bottom: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-close { background: none; border: none; color: #fff; font-size: 1.5rem; padding: 0 10px; }
+        
+        /* Tabs */
+        .tabs { display: flex; width: 100%; background: #000; }
+        .tab-btn {
+            flex: 1; padding: 15px 0; background: #111; color: #666; border: none; border-bottom: 3px solid transparent; font-weight: bold;
+        }
+        .tab-btn.active { background: #222; color: var(--common); border-bottom-color: var(--common); }
+
+        /* List */
+        #code-list {
+            flex: 1; overflow-y: auto; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-content: start;
+        }
+        .code-item {
+            background: #1a1a1a; padding: 10px; border-radius: 8px; border: 1px solid #333;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .item-icon { font-size: 2rem; margin-bottom: 5px; }
+        .item-code { color: var(--common); font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; }
+        .item-name { color: #888; font-size: 0.8rem; margin-top: 2px; }
+
+        /* SUCCESS OVERLAY */
+        #screen-success {
+            background: rgba(0, 30, 0, 0.95); justify-content: center; text-align: center;
+        }
+        .next-btn {
+            background: var(--common); color: #000; padding: 20px 40px; font-size: 1.5rem; border: none; border-radius: 50px; margin-top: 30px; font-weight: bold;
+            box-shadow: 0 0 30px rgba(0,255,65,0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="screen-select">
+        <h1 style="color: #fff; letter-spacing: 3px; margin-bottom: 40px;">TERMINAL LINK</h1>
+        <button class="role-btn role-a" onclick="initGame('A')">我是特務 A<br><span style="font-size:0.9rem; opacity:0.7;">(Agent Alpha)</span></button>
+        <button class="role-btn role-b" onclick="initGame('B')">我是特務 B<br><span style="font-size:0.9rem; opacity:0.7;">(Agent Bravo)</span></button>
+        <p style="color:#666; font-size:0.8rem; margin-top:30px;">請在兩台裝置分別選擇不同角色</p>
+    </div>
+
+    <div id="screen-game" class="hidden">
+        <div class="status-bar">
+            <span id="role-indicator">AGENT A</span>
+            <span id="level-indicator">PHASE 1: FRUITS</span>
+        </div>
+
+        <div class="target-area">
+            <div style="color: #888; font-size: 0.9rem; margin-bottom: 10px;">CURRENT TARGET (目標)</div>
+            <span id="target-icon" class="target-icon">❓</span>
+            <span id="target-name" class="target-name">LOADING...</span>
+        </div>
+
+        <div class="input-area">
+            <input type="number" id="input-code" class="game-input" placeholder="輸入代碼" inputmode="numeric">
+            <button class="submit-btn" onclick="checkCode()">解鎖 / UNLOCK</button>
+        </div>
+        
+        <div id="msg-box" style="height: 20px; color: #ff3333; font-weight: bold;"></div>
+
+        <button class="codebook-trigger" onclick="openCodebook()">
+            📖
+            <div class="codebook-label">查詢隊友代碼</div>
+        </button>
+    </div>
+
+    <div id="screen-success" class="hidden screen" style="position:fixed; top:0; left:0; width:100%; height:100%; display:none; flex-direction:column; align-items:center; z-index:90;">
+        <div style="font-size: 5rem;">✅</div>
+        <h2 style="color: var(--common); font-size: 2rem; margin: 20px 0;">ACCESS GRANTED</h2>
+        <p style="color: #fff;">代碼正確，準備進入下一層級。</p>
+        <button class="next-btn" onclick="nextLevel()">下一關 ➔</button>
+    </div>
+
+    <div id="modal-overlay" class="hidden">
+        <div class="modal-header">
+            <span style="color:#fff; font-weight:bold;">協助隊友查詢代碼</span>
+            <button class="modal-close" onclick="closeCodebook()">✕</button>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('fruits')" id="tab-fruits">水果</button>
+            <button class="tab-btn" onclick="switchTab('animals')" id="tab-animals">動物</button>
+            <button class="tab-btn" onclick="switchTab('plants')" id="tab-plants">植物</button>
+        </div>
+        <div id="code-list">
+            </div>
+    </div>
+
+    <script>
+        // --- 資料庫 (Database) ---
+        // 兩個隊伍對同一個物品有「不同的代碼」
+        const rawData = {
+            fruits: [
+                {n:'香蕉', i:'🍌'}, {n:'蘋果', i:'🍎'}, {n:'葡萄', i:'🍇'}, {n:'西瓜', i:'🍉'},
+                {n:'草莓', i:'🍓'}, {n:'鳳梨', i:'🍍'}, {n:'橘子', i:'🍊'}, {n:'檸檬', i:'🍋'},
+                {n:'桃子', i:'🍑'}, {n:'櫻桃', i:'🍒'}, {n:'梨子', i:'🍐'}, {n:'奇異果', i:'🥝'}
+            ],
+            animals: [
+                {n:'獅子', i:'🦁'}, {n:'老虎', i:'🐯'}, {n:'熊', i:'🐻'}, {n:'狼', i:'🐺'},
+                {n:'狐狸', i:'🦊'}, {n:'熊貓', i:'🐼'}, {n:'無尾熊', i:'🐨'}, {n:'兔子', i:'🐰'},
+                {n:'老鼠', i:'🐭'}, {n:'貓咪', i:'🐱'}, {n:'狗狗', i:'🐶'}, {n:'猴子', i:'🐵'}
+            ],
+            plants: [
+                {n:'仙人掌', i:'🌵'}, {n:'松樹', i:'🌲'}, {n:'向日葵', i:'🌻'}, {n:'玫瑰', i:'🌹'},
+                {n:'鬱金香', i:'🌷'}, {n:'楓葉', i:'🍁'}, {n:'蘑菇', i:'🍄'}, {n:'竹子', i:'🎋'},
+                {n:'椰子樹', i:'🌴'}, {n:'幸運草', i:'🍀'}, {n:'稻穗', i:'🌾'}, {n:'芙蓉', i:'🌺'}
+            ]
+        };
+
+        // 產生亂數代碼的函數 (保證 A 和 B 不同)
+        function generateCodes() {
+            const db = { A: { fruits:[], animals:[], plants:[] }, B: { fruits:[], animals:[], plants:[] } };
+            
+            ['fruits', 'animals', 'plants'].forEach(cat => {
+                rawData[cat].forEach(item => {
+                    // 為 A 產生一個 4 位數代碼
+                    let codeA = Math.floor(1000 + Math.random() * 9000).toString();
+                    // 為 B 產生一個不同的 4 位數代碼
+                    let codeB = Math.floor(1000 + Math.random() * 9000).toString();
+                    while(codeB === codeA) codeB = Math.floor(1000 + Math.random() * 9000).toString();
+
+                    db.A[cat].push({ ...item, c: codeA });
+                    db.B[cat].push({ ...item, c: codeB });
+                });
+            });
+            return db;
+        }
+
+        // 初始化資料庫
+        const fullDB = generateCodes();
+
+        // --- 遊戲狀態 ---
+        let myRole = null;    // 'A' or 'B'
+        let otherRole = null; // 'B' or 'A'
+        let phaseIndex = 0;   // 0=fruits, 1=animals, 2=plants, 3=fruits...
+        const phaseOrder = ['fruits', 'animals', 'plants'];
+        let currentTarget = null;
+        let currentTab = 'fruits'; // 密碼本當前分頁
+
+        // --- 核心邏輯 ---
+
+        function initGame(role) {
+            myRole = role;
+            otherRole = (role === 'A') ? 'B' : 'A';
+            
+            // 設定 UI 顏色
+            const color = (role === 'A') ? '#ff3333' : '#3388ff';
+            document.getElementById('input-code').style.borderColor = color;
+            document.getElementById('role-indicator').innerText = `AGENT ${role}`;
+            document.getElementById('role-indicator').style.color = color;
+
+            // 切換畫面
+            document.getElementById('screen-select').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            // 開始第一關
+            loadPhase();
+        }
+
+        function loadPhase() {
+            // 計算當前類別
+            const catName = phaseOrder[phaseIndex % 3];
+            const phaseNum = phaseIndex + 1;
+            
+            // 更新標題
+            document.getElementById('level-indicator').innerText = `LV.${phaseNum}: ${catName.toUpperCase()}`;
+            
+            // 隨機選取目標 (從我自己的數據庫選)
+            const list = fullDB[myRole][catName];
+            currentTarget = list[Math.floor(Math.random() * list.length)];
+            
+            // 顯示目標
+            document.getElementById('target-icon').innerText = currentTarget.i;
+            document.getElementById('target-name').innerText = currentTarget.n;
+            document.getElementById('input-code').value = '';
+            document.getElementById('msg-box').innerText = '';
+        }
+
+        function checkCode() {
+            const input = document.getElementById('input-code').value;
+            if (input === currentTarget.c) {
+                // 成功
+                const successScreen = document.getElementById('screen-success');
+                successScreen.style.display = 'flex'; // Flex to center content
+            } else {
+                // 失敗
+                const msg = document.getElementById('msg-box');
+                msg.innerText = '⛔ ACCESS DENIED (密碼錯誤)';
+                const inputEl = document.getElementById('input-code');
+                inputEl.style.borderColor = 'red';
+                setTimeout(() => { inputEl.style.borderColor = (myRole==='A'?'#ff3333':'#3388ff'); msg.innerText=''; }, 1000);
+                inputEl.value = '';
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById('screen-success').style.display = 'none';
+            phaseIndex++;
+            loadPhase();
+        }
+
+        // --- 密碼本邏輯 (顯示對方的資料) ---
+
+        function openCodebook() {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            // 預設打開當前關卡對應的類別，方便玩家
+            const currentCat = phaseOrder[phaseIndex % 3];
+            switchTab(currentCat); 
+        }
+
+        function closeCodebook() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function switchTab(cat) {
+            currentTab = cat;
+            
+            // 更新 Tab 樣式
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${cat}`).classList.add('active');
+
+            // 渲染列表 (顯示對方的資料!)
+            renderList(fullDB[otherRole][cat]);
+        }
+
+        function renderList(list) {
+            const container = document.getElementById('code-list');
+            container.innerHTML = '';
+
+            // 複製一份並洗牌 (Shuffle)
+            const shuffled = [...list].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'code-item';
+                div.innerHTML = `
+                    <div class="item-icon">${item.i}</div>
+                    <div class="item-code">${item.c}</div>
+                    <div class="item-name">${item.n}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+    </script>
+</body>
+</html>
